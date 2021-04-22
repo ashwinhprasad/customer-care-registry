@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+    {% block body %}
+        <div class="container">
+            <div class="jumbotron">
+                <div class="row">
+                    <div class="col">
+                        <h2>{{ ticket[3] }}</h2>
+                        <p>{{ ticket[4] }}</p>
+                    </div>
+                    <div class="col">
+                        <div class="row detail-card bl">
+                            <h4>Complaint Filed by {{ user[0] }}</h4>
+                        </div>
+                        <div class="row detail-card gr">
+                            <h4>Progress: {{ ticket[5] }}</h4>
+                        </div>
+                        <div class="row detail-card yl">
+                            <h4>Assigned to: {{ ticket[2] }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    {% endblock %}
