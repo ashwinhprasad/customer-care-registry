@@ -20,6 +20,24 @@
                         </div>
                     </div>
                 </div>
+                {% if user[3] == 2 %}
+                <div class="row" >
+                    <form method="POST">
+                        <select name="agent">
+                            {% for user in all_users %}
+                                <option value="{{user[4]}}">{{user[0]}}</option>
+                            {% endfor %}
+                        </select>
+                        <input class="btn btn-danger btn-sm" type="submit" value="Assign"/>
+                    </form>
+                </div>
+                {% elif user[3] == 1%}
+                    {% if ticket[5] == "assigned" %}
+                        <button>Accept</button>
+                    {% elif ticket[5] == "accepted" %}
+                        <button>Delete</button>
+                    {% endif %}
+                {% endif %}
             </div>
         </div>
         
