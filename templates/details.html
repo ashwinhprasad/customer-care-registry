@@ -33,9 +33,9 @@
                 </div>
                 {% elif user[3] == 1%}
                     {% if ticket[5] == "assigned" %}
-                        <button>Accept</button>
+                        <a href="/accept/{{ticket[0]}}/{{user[4]}}"><button class="btn btn-secondary">Accept</button></a>
                     {% elif ticket[5] == "accepted" %}
-                        <button>Delete</button>
+                        <a href="/delete/{{ticket[0]}}/{{user[4]}}"><button class="btn btn-danger" >Delete</button></a>
                     {% endif %}
                 {% endif %}
             </div>

@@ -158,6 +158,31 @@ def panel():
         return render_template("panel.html",all_users=all_users,user=user_details,tickets=tickets)
 
 
+@app.route("/accept/<int:ticket_id>/<int:user_id>")
+def accept(ticket_id,user_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM User WHERE id = %s",[user_id])
+    agent = cursor.fetchone()
+    cursor.execute("SELECT * FROM Tickets WHERE id=%s",[ticket_id])
+    ticket = cursor.fetchone()
+    if agent[4] == ticket[2]:
+        cursor.execute("UPDATE Tickets SET progress='accepted' WHERE id=%s",[ticket_id])
+        mysql.connection.commit()
+    return redirect(url_for("home"))
+
+@app.route("/delete/<int:ticket_id>/<int:user_id>")
+def delete(ticket_id,user_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM User WHERE id = %s",[user_id])
+    agent = cursor.fetchone()
+    cursor.execute("SELECT * FROM Tickets WHERE id=%s",[ticket_id])
+    ticket = cursor.fetchone()
+    if agent[4] == ticket[2]:
+        cursor.execute("DELETE FROM Tickets WHERE id=%s",[ticket_id])
+        mysql.connection.commit()
+    return redirect(url_for("home"))
+
+
 # run server
 if __name__ == "__main__":
     app.run(debug=True)
