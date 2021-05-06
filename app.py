@@ -1,8 +1,10 @@
 # importing the modules
 from flask import Flask, render_template, request, redirect, session, url_for
+from flask_mail import Mail, Message
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 from passlib.hash import pbkdf2_sha256
+import config
 
 # app config
 app = Flask(__name__)
@@ -10,8 +12,16 @@ app.config['MYSQL_HOST'] = 'remotemysql.com'
 app.config['MYSQL_USER'] = 'Y8RYDnrC11'
 app.config['MYSQL_PASSWORD'] = 'vbNTSPoO7o'
 app.config['MYSQL_DB'] = 'Y8RYDnrC11'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = config.email
+app.config['MAIL_PASSWORD'] = config.password
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USE_TLS'] = False
+
 mysql = MySQL(app)
 app.secret_key = 'returnzero'
+mail = Mail(app)
 
 
 # routes
@@ -62,6 +72,15 @@ def register_account():
         cursor = mysql.connection.cursor()
         cursor.execute("INSERT INTO User(username,email,password,role) VALUES(%s,%s,%s,%s)",(username,email,hashed_password,0))
         mysql.connection.commit()
+        msg = Message('registration customer care',sender=config.email,
+            recipients=[email]
+        )
+        msg.body = '''
+        Account creation in customer care registry was successful.
+        for raising tickets, login with your email id and password.
+        Thank You
+        '''
+        mail.send(msg)
         return redirect(url_for("login"))
     return render_template("register.html")
 
@@ -152,7 +171,7 @@ def panel():
         if request.method == "POST":
             user_id = request.form['admin-candidate']
             cursor = mysql.connection.cursor()
-            cursor.execute("UPDATE User SET role=1 WHERE id = %s",(user_id))
+            cursor.execute("UPDATE User SET role=1 WHERE id = %s",[user_id])
             mysql.connection.commit()
             return redirect(url_for("panel"))
         return render_template("panel.html",all_users=all_users,user=user_details,tickets=tickets)
