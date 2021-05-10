@@ -76,9 +76,9 @@ def register_account():
             recipients=[email]
         )
         msg.body = '''
-        Account creation in customer care registry was successful.
-        for raising tickets, login with your email id and password.
-        Thank You
+            Account creation in customer care registry was successful.
+            for raising tickets, login with your email id and password.
+            Thank You
         '''
         mail.send(msg)
         return redirect(url_for("login"))
@@ -117,20 +117,55 @@ def ticket_detail(id):
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM Tickets WHERE id=%s",[id])
     ticket = cursor.fetchone()
+    cursor.execute("SELECT * FROM User WHERE id=%s",[ticket[1]])
+    customer = cursor.fetchone()
     cursor.execute("SELECT * FROM User WHERE id=%s",[session['user']])
     user = cursor.fetchone()
     cursor.execute("SELECT * FROM User WHERE role=1")
     all_users = cursor.fetchall()
+    cursor.execute("SELECT * FROM User WHERE id=%s",[ticket[2]])
+    agent = cursor.fetchone()
+    if agent is None:
+        agent = [None,None]
     if user is None:
         return redirect(url_for("login"))
     if request.method == "POST":
         agent = request.form['agent']
-        print(agent,id)
         cursor.execute("UPDATE Tickets SET agent= %s WHERE id = %s",(agent,id))
         cursor.execute("UPDATE Tickets SET progress='assigned' WHERE id = %s",[id])
         mysql.connection.commit()
+        cursor.execute("SELECT email FROM User WHERE id=%s",[agent])
+        agent_mail = cursor.fetchone()[0]
+        msg = Message('Assigned Ticket',sender=config.email,
+            recipients=[agent_mail]
+        )
+
+        # send mail to agent
+        msg = Message('Assigned Ticket',sender=config.email,
+            recipients=[agent_mail]
+        )
+        cursor.execute("SELECT email FROM User WHERE id=%s",[ticket[1]])
+        customer = cursor.fetchone()[0]
+        msg.body = f'''
+            You have been assigned a ticket.
+            Ticket Title: {ticket[3]}
+            posted by: {customer}
+        '''
+        mail.send(msg)
+
+        # send mail to customer
+        msg = Message('Ticked Progress',sender=config.email,
+            recipients=[customer]
+        )
+        msg.body = f'''
+            Dear Customer,
+            Your Ticket progress has been Updated and
+            Assigned to an Agent of ours.
+            Agent : {agent_mail}
+        '''
+        mail.send(msg)
         return redirect(url_for("panel"))
-    return render_template("details.html",ticket=ticket,user=user,all_users=all_users)
+    return render_template("details.html",ticket=ticket,agent=agent,customer=customer,user=user,all_users=all_users)
 
 
 # admin register
@@ -173,6 +208,16 @@ def panel():
             cursor = mysql.connection.cursor()
             cursor.execute("UPDATE User SET role=1 WHERE id = %s",[user_id])
             mysql.connection.commit()
+            cursor.execute("SELECT * FROM User WHERE id = %s",[user_id])
+            promoted_agent = cursor.fetchone()
+            msg = Message('Promoted to Agent',sender=config.email,recipients=[promoted_agent[1]])
+            msg.body = """
+                Dear User,
+                You have been promoted to an Agent in the Customer-Care-Registry.
+                You will be able to handle tickets for the customer from now on.
+                Congratulations.
+            """
+            mail.send(msg)
             return redirect(url_for("panel"))
         return render_template("panel.html",all_users=all_users,user=user_details,tickets=tickets)
 
@@ -184,9 +229,17 @@ def accept(ticket_id,user_id):
     agent = cursor.fetchone()
     cursor.execute("SELECT * FROM Tickets WHERE id=%s",[ticket_id])
     ticket = cursor.fetchone()
+    cursor.execute("SELECT email FROM User WHERE id=%s",[ticket[1]])
+    customer = cursor.fetchone()
     if agent[4] == ticket[2]:
         cursor.execute("UPDATE Tickets SET progress='accepted' WHERE id=%s",[ticket_id])
         mysql.connection.commit()
+        msg = Message('Ticket Progress',sender=config.email,recipients=[customer[0]])
+        msg.body = f"""
+            Dear User,
+            Your Ticket has been accepted by {agent[1]}
+        """
+        mail.send(msg)
     return redirect(url_for("home"))
 
 @app.route("/delete/<int:ticket_id>/<int:user_id>")
@@ -199,6 +252,15 @@ def delete(ticket_id,user_id):
     if agent[4] == ticket[2]:
         cursor.execute("DELETE FROM Tickets WHERE id=%s",[ticket_id])
         mysql.connection.commit()
+        cursor.execute("SELECT * FROM User WHERE id=%s",[ticket[1]])
+        customer = cursor.fetchone()
+        msg = Message('Ticket Progress',sender=config.email,recipients=[customer[1]])
+        msg.body = f"""
+            Dear User,
+            Your Ticket has been Closed by {agent[1]}
+            Thanks For using Customer Care Registry.
+        """
+        mail.send(msg)
     return redirect(url_for("home"))
 
 
