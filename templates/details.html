@@ -10,13 +10,13 @@
                     </div>
                     <div class="col">
                         <div class="row detail-card bl">
-                            <h4>Complaint Filed by {{ user[0] }}</h4>
+                            <h4>Complaint Filed by {{ customer[1] }}</h4>
                         </div>
                         <div class="row detail-card gr">
                             <h4>Progress: {{ ticket[5] }}</h4>
                         </div>
                         <div class="row detail-card yl">
-                            <h4>Assigned to: {{ ticket[2] }}</h4>
+                            <h4>Assigned to: {{ agent[1] }}</h4>
                         </div>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                     {% if ticket[5] == "assigned" %}
                         <a href="/accept/{{ticket[0]}}/{{user[4]}}"><button class="btn btn-secondary">Accept</button></a>
                     {% elif ticket[5] == "accepted" %}
-                        <a href="/delete/{{ticket[0]}}/{{user[4]}}"><button class="btn btn-danger" >Delete</button></a>
+                        <a href="/delete/{{ticket[0]}}/{{user[4]}}"><button class="btn btn-danger" >Close</button></a>
                     {% endif %}
                 {% endif %}
             </div>
