@@ -8,10 +8,10 @@ import config
 
 # app config
 app = Flask(__name__)
-app.config['MYSQL_HOST'] = 'remotemysql.com'
-app.config['MYSQL_USER'] = 'Y8RYDnrC11'
-app.config['MYSQL_PASSWORD'] = 'vbNTSPoO7o'
-app.config['MYSQL_DB'] = 'Y8RYDnrC11'
+app.config['MYSQL_HOST'] = config.sql_server
+app.config['MYSQL_USER'] = config.mysql_username
+app.config['MYSQL_PASSWORD'] = config.sql_password
+app.config['MYSQL_DB'] = config.mysql_username
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] = config.email
@@ -221,7 +221,7 @@ def panel():
             return redirect(url_for("panel"))
         return render_template("panel.html",all_users=all_users,user=user_details,tickets=tickets)
 
-
+# accept ticket
 @app.route("/accept/<int:ticket_id>/<int:user_id>")
 def accept(ticket_id,user_id):
     cursor = mysql.connection.cursor()
@@ -242,6 +242,7 @@ def accept(ticket_id,user_id):
         mail.send(msg)
     return redirect(url_for("home"))
 
+# close ticket
 @app.route("/delete/<int:ticket_id>/<int:user_id>")
 def delete(ticket_id,user_id):
     cursor = mysql.connection.cursor()
@@ -268,11 +269,3 @@ def delete(ticket_id,user_id):
 if __name__ == "__main__":
     app.run(debug=True)
 
-
-"""
-Username: Y8RYDnrC11
-Database name: Y8RYDnrC11
-Password: vbNTSPoO7o
-Server: remotemysql.com
-Port: 3306
-"""
