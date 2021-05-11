@@ -31,3 +31,13 @@
     padding:1em;
     border-radius:0.2em;
 }
+
+.register-form{
+    margin-top:10em;
+}
+
+body{
+    background-image: url('https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fwww.pixelstalk.net%2Fwp-content%2Fuploads%2F2016%2F04%2FPhotos-download-abstract-minimalist-wallpaper-HD.jpg&f=1&nofb=1');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
