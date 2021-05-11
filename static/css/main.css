@@ -18,3 +18,16 @@
 .gr{
     background-color: rgb(95, 204, 91);
 }
+
+/* login form */
+.login-form{
+    margin-top:10em;
+}
+
+/* ticket detail */
+.ticket-detail{
+    margin-top:15em;
+    border: 1px black solid;
+    padding:1em;
+    border-radius:0.2em;
+}
